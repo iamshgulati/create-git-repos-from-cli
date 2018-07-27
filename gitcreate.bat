@@ -3,58 +3,81 @@ setlocal enableDelayedExpansion
 cls
 
 echo CREATE NEW GITHUB REPO AND PUSH CODE FROM CLI
+
 echo.
+echo.
+echo. --- ENTER REPOSITORY DETAILS
 
-set GITHUB_USER_FULLNAME="Shubham Gulati"
-set /p GITHUB_USER_FULLNAME= Enter Full Name [default is %GITHUB_USER_FULLNAME%]: 
-
-set GITHUB_USER_EMAIL="shubhamgulati91@gmail.com"
-set /p GITHUB_USER_EMAIL= Enter Email [default is %GITHUB_USER_EMAIL%]: 
-
-set GITHUB_USER_USERNAME="shubhamgulati91"
-set /p GITHUB_USER_USERNAME= Enter Github Username [default is %GITHUB_USER_USERNAME%]: 
-
-set CURRENT_DIR_LOCATION=%~dp0 >nul 2>nul
-
-::set REPO_LOCAL_LOCATION="C:\Users\shgulati\Downloads\create-git-repos-from-cli"
+set CURRENT_DIR_LOCATION=%cd% >nul 2>nul
 set REPO_LOCAL_LOCATION=%CURRENT_DIR_LOCATION%
-set /p REPO_LOCAL_LOCATION= Enter Repo Local Location [default is %REPO_LOCAL_LOCATION%]: 
+echo.
+echo Default Local Repo Location: %REPO_LOCAL_LOCATION%
+set /p REPO_LOCAL_LOCATION= Local Repo Location: 
 cd %REPO_LOCAL_LOCATION% >nul 2>nul
-
 for %%I in (.) do set CURRENT_DIR_NAME=%%~nxI
 
 set REPO_NAME=%CURRENT_DIR_NAME%
-set /p REPO_NAME= Enter Repo Name [default is %CURRENT_DIR_NAME%]: 
+echo.
+echo Default Repo Name: %CURRENT_DIR_NAME%
+set /p REPO_NAME= Repo Name:  
 
 set REPO_DESC=Project: %REPO_NAME%
-set /p REPO_DESC= Enter Repo Description [default is "%REPO_DESC%"]: 
+echo.
+echo Default Repo Description: "%REPO_DESC%"
+set /p REPO_DESC= Enter Repo Description: 
 
 cd %REPO_LOCAL_LOCATION% >nul 2>nul
 if exist .git rd/q /s .git
 
 echo.
-echo. ++ Creating repository and pushing code...
+echo. --- ENTER GITHUB USER DETAILS
+
+set GITHUB_USER_FULLNAME="Shubham Gulati"
+echo.
+echo Default Full Name: %GITHUB_USER_FULLNAME%
+set /p GITHUB_USER_FULLNAME= Full Name: 
+
+set GITHUB_USER_EMAIL="shubhamgulati91@gmail.com"
+echo.
+echo Default Email: %GITHUB_USER_EMAIL%
+set /p GITHUB_USER_EMAIL= Enter Email: 
+
+set GITHUB_USER_USERNAME="shubhamgulati91"
+echo.
+echo Default Github Username: %GITHUB_USER_USERNAME%
+set /p GITHUB_USER_USERNAME= Enter Github Username: 
 
 git config --global user.name "%GITHUB_USER_FULLNAME%"
 git config --global user.email "%GITHUB_USER_EMAIL%"
 
+echo.
+echo. --- INITIALIZING LOCAL REPO
+
+echo.
 git init
+
+echo.
+echo. --- ADDING README.md
 
 if exist README.md del README.md
 touch README.md
 echo # %REPO_NAME% >> README.md
 echo %REPO_DESC% >> README.md
-echo.
 
 if not exist .gitignore (
+
+	echo.
+	echo. --- ADDING GITIGNORE
+
 	set ADD_GITIGNORE=n
+	echo.
 	set /p ADD_GITIGNORE="Add gitignore? (y/n) [default is '!ADD_GITIGNORE!']: 
 	
 	if "!ADD_GITIGNORE!" == "y" (
 		set GITIGNORE_TEMPLATES_LIST=Maven,Java
+		echo.
 		set /p GITIGNORE_TEMPLATES_LIST=Enter gitignore templates to be fetched [default is "!GITIGNORE_TEMPLATES_LIST!"]: 
 		echo. ++ Fetching gitignore templates: !GITIGNORE_TEMPLATES_LIST!
-		echo.
 
 		touch .gitignore
 		for %%a in ("!GITIGNORE_TEMPLATES_LIST:,=" "!") do (
@@ -67,29 +90,39 @@ if not exist .gitignore (
 			)
 		)
 	)
-
-git add . >nul 2>nul
-
-git commit -m "initial commit"
+	
 echo.
+echo. --- STAGING ALL LOCAL CHANGES
+
+echo.
+git add . >nul 2>nul
+echo. --- STAGING DONE
+
+echo.
+echo. --- CREATING INITIAL COMMIT
+
+echo.
+git commit -m "initial commit"
+
+echo.
+echo. --- CREATING REMOTE REPO ON GITHUB
 
 set JSON_DATA={\"name\": \"%REPO_NAME%\", \"description\": \"%REPO_DESC%\", \"homepage\": \"https://github.com/shubhamgulati91/%REPO_NAME%\", \"private\": false, \"has_issues\": true, \"has_projects\": true, \"has_wiki\": true}
-::echo REQUEST DATA: %JSON_DATA%
-::echo.
 
+echo.
 curl -k -u %GITHUB_USER_USERNAME% -X POST -H "Content-Type: application/json" --data "%JSON_DATA%" https://api.github.com/user/repos
 
+echo.
 git remote add origin git@github.com:%GITHUB_USER_USERNAME%/%REPO_NAME%.git
 
-::echo.
-::git remote -v
-
-::echo.
-::git status
+echo.
+echo. --- PUSHING CODE TO MASTER BRANCH
 
 echo.
 git push -u origin master
 
 echo.
-echo Repository created and code pushed successfully.
+echo DONE.
+
+echo.
 pause
