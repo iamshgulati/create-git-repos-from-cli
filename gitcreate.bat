@@ -56,13 +56,14 @@ echo. --- INITIALIZING LOCAL REPO
 echo.
 git init
 
-echo.
-echo. --- ADDING README.md
+if not exist README.md (
+	echo.
+	echo. --- ADDING README.md
 
-if exist README.md del README.md
-touch README.md
-echo # %REPO_NAME% >> README.md
-echo %REPO_DESC% >> README.md
+	touch README.md
+	echo # %REPO_NAME% >> README.md
+	echo %REPO_DESC% >> README.md
+)
 
 if not exist .gitignore (
 
@@ -107,7 +108,7 @@ git commit -m "initial commit"
 echo.
 echo. --- CREATING REMOTE REPO ON GITHUB
 
-set JSON_DATA={\"name\": \"%REPO_NAME%\", \"description\": \"%REPO_DESC%\", \"homepage\": \"https://github.com/shubhamgulati91/%REPO_NAME%\", \"private\": false, \"has_issues\": true, \"has_projects\": true, \"has_wiki\": true}
+set JSON_DATA={\"name\": \"%REPO_NAME%\", \"description\": \"%REPO_DESC%\", \"homepage\": \"https://%GITHUB_USER_USERNAME%.github.io/%REPO_NAME%\", \"private\": false, \"has_issues\": true, \"has_projects\": true, \"has_wiki\": true}
 
 echo.
 curl -k -u %GITHUB_USER_USERNAME% -X POST -H "Content-Type: application/json" --data "%JSON_DATA%" https://api.github.com/user/repos
